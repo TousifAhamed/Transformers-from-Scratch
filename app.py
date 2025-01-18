@@ -1,37 +1,56 @@
 import gradio as gr
+import torch
+import os
 from model_utils import load_model, generate_text
 
-# Load the model globally
-model_path = "path/to/your/downloaded/best_model.pt"  # Update this path
-model = load_model(model_path)
-
-# Move model to GPU if available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = model.to(device)
+# Initialize model
+try:
+    model_path = "best_model.pt"
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file {model_path} not found")
+    
+    model = load_model(model_path)
+    if model is None:
+        raise ValueError("Model failed to load")
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+    model = model.to(device)
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
 
 def predict(prompt, max_tokens, temperature, top_k):
     """Wrapper function for Gradio interface"""
-    generated_text = generate_text(
-        model=model,
-        prompt=prompt,
-        max_new_tokens=max_tokens,
-        temperature=temperature,
-        top_k=top_k
-    )
-    return generated_text
+    if not prompt:
+        return "Error: Please enter a prompt"
+    if model is None:
+        return "Error: Model failed to load. Please check the logs."
+    
+    try:
+        generated_text = generate_text(
+            model=model,
+            prompt=prompt.strip(),
+            max_new_tokens=int(max_tokens),
+            temperature=float(temperature),
+            top_k=int(top_k)
+        )
+        return generated_text
+    except Exception as e:
+        return f"Error during generation: {str(e)}"
 
 # Create Gradio interface
 demo = gr.Interface(
     fn=predict,
     inputs=[
-        gr.Textbox(label="Enter your prompt", lines=3),
+        gr.Textbox(label="Enter your prompt", lines=3, placeholder="Type your text here..."),
         gr.Slider(minimum=1, maximum=200, value=50, step=1, label="Max Tokens"),
         gr.Slider(minimum=0.1, maximum=2.0, value=0.8, step=0.1, label="Temperature"),
         gr.Slider(minimum=1, maximum=100, value=40, step=1, label="Top-k"),
     ],
     outputs=gr.Textbox(label="Generated Text", lines=5),
     title="GPT Text Generation",
-    description="Enter a prompt and the model will generate text continuation.",
+    description="Enter a text prompt and the model will generate a continuation.",
     examples=[
         ["The quick brown fox", 50, 0.8, 40],
         ["Once upon a time", 100, 0.9, 50],
@@ -39,6 +58,7 @@ demo = gr.Interface(
     ],
 )
 
-# Launch the app
 if __name__ == "__main__":
-    demo.launch(share=True)  # set share=False if you don't want to share publicly 
+    demo.launch(share=False)
+else:
+    app = demo.launch(share=False)

@@ -6,6 +6,8 @@ This project demonstrates how to train transformers from scratch. Refer to the `
 
 It's trained on [input.txt](./input.txt), which has 338025 tokens. Training activity was done on Kaggle, leveraging some pretrained GPT-2 tokens for additional clarity. For more information, see the code in `Kaggle_notebook.py`.
 
+You can also visit the [Hugging Face app](https://huggingface.co/spaces/Tousifahamed/Transformers-from-Scratch) to see the model in action. The app demonstrates text generation capabilities using the trained transformer model. For more details on how the app works, refer to the `app.py` file.
+
 ## Architecture
 The code in `Kaggle_notebook.py` implements a GPT-inspired transformer model comprising multi-head self-attention layers and feed-forward blocks. It uses positional embeddings, layer normalization, and residual connections. Hyperparameters like attention heads, hidden size, and dropout are configured to balance performance and efficiency.
 
@@ -27,3 +29,8 @@ Below is an image showing the training progress:
 ![Training Logs](TrainingLogs.PNG)
 
 Logs indicate a steady improvement, showing the model’s convergence over multiple epochs.
+
+## Hugging Face App
+Below is an image showing the Hugging Face app interface:
+
+![Hugging Face App](HuggingFace_TextGeneration_App.PNG)
