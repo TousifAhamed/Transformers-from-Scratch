@@ -111,8 +111,8 @@ class GPT(nn.Module):
 def load_model(model_path):
     """Load the trained model"""
     try:
-        torch.serialization.add_safe_globals({'GPTConfig': GPTConfig})
-        checkpoint = torch.load(model_path, map_location=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+        torch.serialization.add_safe_globals([GPTConfig])
+        checkpoint = torch.load(model_path, map_location=torch.device('cuda' if torch.cuda.is_available() else 'cpu'), weights_only=True)
         config = GPTConfig(**checkpoint['config'])
         model = GPT(config)
         model.load_state_dict(checkpoint['model_state_dict'])
